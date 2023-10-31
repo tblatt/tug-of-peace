@@ -4,7 +4,7 @@
 #define NUM_LEDS 64  // Number of LEDs in the strip
 #define BUTTON_PIN 16  // Pin the blue button is connected to
 #define BUTTON2_PIN 17  // Pin the yellow button is connected to
-
+uint8_t gHue = 0; // rotating "base color" used by many of the patterns
 CRGB leds[NUM_LEDS];  // Define an array of CRGB for your LEDs
 int ledIndex = NUM_LEDS / 2;  // Keeps track of the current LED
 int ledWidth = 14;  // width of the led rainbow snake that moves 
@@ -19,6 +19,7 @@ unsigned long button2PressTime = 0;
 unsigned long button2ReleaseTime = 0;
 bool button2Pressed = false;
 
+
 CRGB Wheel(byte WheelPos);
 
 void setup() {
@@ -31,14 +32,20 @@ void setup() {
 
 void attractMode() {
   // attract mode animation goes until someone holds a button
-  for (int i = 0; i < NUM_LEDS; i++) {
+  /*for (int i = 0; i < NUM_LEDS; i++) {
     leds[i] = CRGB::Green;
     FastLED.show();
     delay(50);
   }
+
   FastLED.clear();
   FastLED.show();
   delay(1000);
+  */
+  fill_rainbow( leds, NUM_LEDS, gHue, 7);
+  FastLED.show();
+  EVERY_N_MILLISECONDS( 10 ) { gHue++; } // slowly cycle the "base color" through the rainbow
+  //delay(50);
 }
 
 
@@ -46,16 +53,30 @@ void loop() {
 
   if (!gameMode) {
     attractMode();
-    if (digitalRead(BUTTON_PIN) == LOW || digitalRead(BUTTON2_PIN) == LOW) {
+    if (digitalRead(BUTTON_PIN) == LOW && digitalRead(BUTTON2_PIN) == LOW) {  //uses bad detection right now because attractMode uses delay so only works when holding which I guess is ok for now
       gameMode = true;  // Transition to game mode when a button is pressed
-   for  (int i = 0; i < NUM_LEDS; i++) {  //  this is the play once animation for game start like ready set go
+   for  (int i = 0; i < (NUM_LEDS / 2)+1; i++) {  //  this is the play once animation for game start like ready set go
     leds[i] = CRGB::Red;
+    leds[NUM_LEDS-i] = CRGB::Red;
     FastLED.show();
-    delay(20);
+    delay(25);
   }
+     for  (int i = 0; i < (NUM_LEDS / 2)+1; i++) {  //  this is the play once animation for game start like ready set go
+    leds[i] = CRGB::Yellow;
+    leds[NUM_LEDS-i] = CRGB::Yellow;
+    FastLED.show();
+    delay(25);
+  }
+     for  (int i = 0; i < (NUM_LEDS / 2)+1; i++) {  //  this is the play once animation for game start like ready set go
+    leds[i] = CRGB::Green;
+    leds[NUM_LEDS-i] = CRGB::Green;
+    FastLED.show();
+    delay(25);
+  }
+  delay(400);
   FastLED.clear();
   FastLED.show();
-  delay(1000);
+  
    
    }
    } else {
